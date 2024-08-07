@@ -44,6 +44,10 @@ const connection = mongoose.connection;
 //   console.log("MongoDB Database connected");
 // });
 
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
 // Endpoint to get all users, sorted by creation date in descending order
 app.get("/users", (req, res) => {
   User.find()

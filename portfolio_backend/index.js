@@ -10,7 +10,7 @@ require("dotenv").config();
 const app = express();
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Adjust this according to your frontend server
+    origin: process.env.FRONTEND_URL, // Adjust this according to your frontend server
     credentials: true,
   })
 );
