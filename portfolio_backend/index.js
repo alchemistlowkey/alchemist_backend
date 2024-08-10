@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 const { Pool } = require("pg");
+const nodemailer = require("nodemailer");
+const { host } = require("pg/lib/defaults");
 require("dotenv").config();
 
 const app = express();
@@ -35,6 +37,17 @@ app.use(
     cookie: { secure: false }, // Set secure to true if using https
   })
 );
+
+// Set up nodemailer transporter
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.GMAIL_USER, // Your email address
+    pass: process.env.GMAIL_PASS, // Your email password or an app-specific password if using 2FA
+  },
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -112,6 +125,17 @@ app.post("/api/contact", async (req, res) => {
       "INSERT INTO contacts (name, email, message) VALUES ($1, $2, $3)",
       [name, email, message]
     );
+
+    // Send an email with the contact details
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.RECEIVER_EMAIL, // Your email address to receive the messages
+      subject: 'New Contact Form Submission',
+      text: `You have a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
     res.json({ success: true, message: "Contact form submitted" });
   } catch (err) {
     console.error(err);
